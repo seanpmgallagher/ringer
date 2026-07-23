@@ -170,6 +170,19 @@ checks and raw logs support — no vibes, no worker self-reports.
   first. Distinct model from k2.7-code above — don't transfer this verdict
   to k2.7.
 
+## Cursor Agent CLI (`cursor` engine)
+
+- 2026-07-23 — `cursor-grok-4.5-high`, code-fix: telemetry attribution and
+  conservative HTML-email scoring both produced correct owned-file patches on
+  attempt 1. Both recorded attempt-2 PASS only because the orchestrator's
+  absolute-path verifier omitted the worktree from `sys.path`; the injected
+  retry repaired the check, not product code. Final executed checks passed at
+  21,173 and 28,095 Ringer-counted tokens. Treat these as two successful code-fix
+  lanes and the retry rows as check-author error.
+- 2026-07-23 — `composer-2.5`, code-fix/docs: tracked-cache cleanup passed first
+  try at 2,418 tokens; the verified repair handoff passed first try at 3,217.
+  Strong fit for compact mechanical cleanup and evidence-bound documentation.
+
 
 ## grok-build (Grok CLI engine, flat plan)
 
