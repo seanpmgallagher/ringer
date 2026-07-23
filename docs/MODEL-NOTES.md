@@ -216,6 +216,15 @@ checks and raw logs support — no vibes, no worker self-reports.
   on long structured code review (after nemotron-3-super) — the exploration
   ladder now says: audition free models on SHORT mechanical tasks first;
   long-diff review is a proven-tier lane.
+- 2026-07-23 — SLUG GONE (probe, engine-lane validation). This slug no
+  longer appears in the OpenRouter catalog (342 models listed, 17 `:free`
+  remain — the free tier itself is NOT gone); calls return `UnknownError:
+  Unexpected server error` on both attempts. Free slugs churn — check
+  `./ringer.py catalog` for the current list before routing any `:free`
+  model. (Same run confirmed the opencode lane is healthy: a paid-model
+  attempt authenticated and reached the completions endpoint, failing only
+  on 402 insufficient credits; GLM-5.2 passed first-try once credits were
+  added.)
 
 ## Small / flash-class models
 
@@ -225,6 +234,17 @@ checks and raw logs support — no vibes, no worker self-reports.
 
 ## Process lessons (cross-model)
 
+- 2026-07-23 — opencode engine concurrency footgun: launching 3 opencode
+  workers in the same instant made two of them die at STARTUP with
+  `Error: database is locked` (OpenCode's shared
+  ~/.local/share/opencode/opencode.db — SQLite write lock on simultaneous
+  session creation). The model never ran; both passed first-try-clean on
+  the retry once starts were staggered. Ringer's retry absorbs this at
+  small batch sizes, but a wide all-opencode parallel round will
+  systematically burn first attempts — keep opencode max_parallel modest
+  or mix engines per round, and do NOT read these rows as model first-try
+  failures (glm-4.7-flash and nemotron-3-super carry this skew from the
+  2026-07-23 probe round).
 - 2026-07-06 — the orchestrator's CHECKS were the day's top failure source:
   three check bugs (fixture newline join, first-occurrence ordering vs the
   watchlist strip, claim-prefix split on '.' instead of ':') each produced

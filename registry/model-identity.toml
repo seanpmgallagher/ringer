@@ -64,6 +64,48 @@ confidence = "verified"     # Cursor (Anysphere) model, served through xAI's Gro
 source = "https://cursor.com/blog/composer-2-5"
 last_verified = 2026-07-10
 
+[engines.claude]
+harness = "Claude Code CLI"
+access = "OAuth plan"
+default_model_key = "claude-sonnet-5"
+
+[engines.claude.models."claude-sonnet-5"]
+display = "Claude Sonnet 5"
+lab = "Anthropic"
+confidence = "verified"     # engine model_default; slug per Anthropic model docs
+source = "https://docs.claude.com/en/docs/about-claude/models/overview"
+last_verified = 2026-07-23
+
+[engines.claude.models."claude-haiku-4-5-20251001"]
+display = "Claude Haiku 4.5"
+lab = "Anthropic"
+confidence = "verified"     # harness self-report: modelUsage key + canonicalModel claude-haiku-4-5 (engine-lane-setup probe, 2026-07-23)
+source = "https://docs.claude.com/en/docs/about-claude/models/overview"
+last_verified = 2026-07-23
+
+[engines.cursor]
+harness = "Cursor Agent CLI"
+access = "OAuth plan"
+default_model_key = "composer-2.5"
+
+[engines.cursor.models."composer-2.5"]
+display = "Composer 2.5"
+lab = "Cursor (Anysphere)"
+confidence = "verified"     # listed by `cursor-agent models` on this account, 2026-07-23
+source = "https://cursor.com/blog/composer-2-5"
+last_verified = 2026-07-23
+
+[engines.cursor.models."cursor-grok-4.5-high"]
+# Same trained artifact as engines.grok."grok-build" (Grok 4.5, xAI), reached
+# through Cursor's hosting. The Grok Build CLI is not installed on this
+# machine, so the cursor route is the working route here; slug bakes in high
+# reasoning effort (display suffix per taxonomy, like Composer 2.5 Fast).
+display = "Grok 4.5 High"
+lab = "xAI"
+confidence = "verified"     # listed by `cursor-agent models` on this account as "Cursor Grok 4.5", 2026-07-23
+source = "https://cursor.com/docs/models"
+last_verified = 2026-07-23
+
 [engines.opencode]
 harness = "OpenCode"
 access = "OpenRouter API"
@@ -84,6 +126,20 @@ lab = "Moonshot AI"
 confidence = "verified"
 source = "manifest model field; OpenRouter slug moonshotai/kimi-k2.7-code"
 last_verified = 2026-07-10
+
+[engines.opencode.models."openrouter/moonshotai/kimi-k3"]
+display = "Kimi K3"
+lab = "Moonshot AI"
+confidence = "verified"     # catalog 2026-07-23: $3.00/M in, $15.00/M out, 1M ctx — frontier-priced API lane
+source = "manifest model field; OpenRouter slug moonshotai/kimi-k3"
+last_verified = 2026-07-23
+
+[engines.opencode.models."openrouter/z-ai/glm-4.7-flash"]
+display = "GLM 4.7 Flash"
+lab = "Z.ai (Zhipu AI)"
+confidence = "verified"     # catalog 2026-07-23: $0.06/M in, $0.40/M out, 200k ctx — the near-free mechanical lane
+source = "manifest model field; OpenRouter slug z-ai/glm-4.7-flash"
+last_verified = 2026-07-23
 
 [engines.opencode.models."openrouter/nvidia/nemotron-3-super-120b-a12b:free"]
 display = "Nemotron 3 Super 120B (free)"
