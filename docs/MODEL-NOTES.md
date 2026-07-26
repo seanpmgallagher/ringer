@@ -360,3 +360,29 @@ checks and raw logs support — no vibes, no worker self-reports.
 - claude/claude-sonnet-5 (docs, 2 tasks): both clean; one retry on a check-format miss. Solid for README/config prose lanes.
 - codex/GPT-5.6 Sol (code-review, 8 tasks): 8/8 first-try, ~100-240s each. Blocked the core patch SIX consecutive times, each with an executed repro (applied the patch to a /tmp copy and demonstrated the failing input) — including catching a nonexistent rg flag in metadata and a silently-skipping audit test. Approved only after the lint rule adopted fail-safe abstain-on-unknown + an executed, mutation-resistant metadata audit. Lesson: enumerated-allowlist designs do not survive this reviewer; design for abstention and machine-enforced invariants before round 1.
 - Worker-env gotcha: for claude-engine workers, rg is a shell function, NOT on PATH (shutil.which('rg') → None), so binary-gated tests silently skip in worker worktrees while codex reviewers have real binaries. Make coverage assertions binary-independent.
+
+## 2026-07-24 — drd-wait-work (Model C DRD calibration autopsy, USH database repo)
+- opencode / poolside/laguna-m.1:free (research, 1 task, explore-slice audition): 1/1 first-try, 120.7k tokens, 517s. Mechanical grain-classification over committed CSV fixtures against a check that independently replayed the same numbers — emitted stats matched the replay EXACTLY (888/1797 grain split; thin 418 / low_volume 872 / unresolvable 507) and volunteered a correct by-stage breakdown the spec didn't ask for. Promote from untested; worth an audition on docs and code-review lanes. One caveat that cost nothing here but would elsewhere: its prose extrapolated a "realistic promotion rate 40–50% → 200–220 rows" from an assumed events-per-job figure with no basis in the data, and self-contradicted an earlier paragraph. The check only validated the counts, so the invented projection sailed through. With free models, put the load-bearing NUMBER in the check and treat unchecked prose as a draft — the orchestrator dropped that estimate in synthesis.
+- codex/GPT-5.6 Sol (research, 2 tasks, calibration diagnosis): 2/2 first-try, 348k tokens total, 1099s. Both reproduced their cohort's verdict anchors exactly and one added an unprompted source-mutation guard. Diagnoses were substantively right and correctly separated directional bias from dispersion; one load-bearing causal claim (that C3's stage-velocity inputs are systemnote-independent) was verified true by the orchestrator against the model SQL. Neither worker found the cross-cohort join (promotable rows disjoint from failing rows) — that needed the two task outputs read together, which is orchestrator work, not a worker gap.
+- Orchestrator lesson: the check validated three top-line counts but not the by-stage breakdown underneath them, and the by-stage numbers were what the headline finding turned on. Anchor the check on the number your conclusion will actually rest on, not just the one the verdict published.
+- 2026-07-24/25 drd-wait-work round 2 (5 tasks, code-review): codex/GPT-5.6 Sol 4/5 first-try; the 5th "failed" only on an orchestrator check bug and passed immediately once fixed. The adversarial lane (break-this-finding, fresh context, mandatory from-scratch replay) was the highest-value task of the whole job: it independently reproduced the orchestrator's numbers, confirmed 5 of 6 claims, and then REFUTED the recommended remedy with two blockers by actually opening the downstream revenue consumers the orchestrator had only grepped — plus found a deeper root cause (the live model's population predicate excludes both failing cells entirely) that the orchestrator had missed. Pattern worth repeating: make the reviewer emit its own replay and have the CHECK re-run it and diff reported-vs-printed numbers; it makes both lazy agreement and fabricated refutation expensive, and it caught a real error in the thing being audited.
+- Orchestrator lesson (cost: one wasted retry, ~1000s): the refutation check required a >=5-word "claim" string. The worker wrote correct short labels ("C1 count and rate") and put the substance in "why" — 8 format failures on honest, fully-grounded work. This is exactly the playbook's strict-on-substance/tolerant-on-format rule and I broke it. Fixed to require a C1..C6 reference in the label and >=15 words in "why". Verify what must be TRUE, never a word count on a field whose job is to be a label.
+
+## opencode sandbox — dangling symlink hazard (engine-level, not a model fault)
+
+- 2026-07-26 — `openrouter/z-ai/glm-5.2`, code-feature (dbt model authoring), USH DRD
+  two-regime build. Recorded FAIL after 2 attempts / 4500s / 273k tokens. **The model's
+  work was correct**: the emitted `mart_drd_blend_weights.sql` built 268 rows with 15
+  genuinely fitted groups, all caps and floors respected, and passed every substantive
+  assertion when re-checked afterwards.
+  The failure was environmental. `engines/opencode-sandboxed.sh` left the dbt project's
+  `logs/` and `target/` directories replaced by **symlinks into the sandbox scratch dir**
+  (`/private/var/folders/.../ringer-opencode-scratch.XXXX/opencode/{logs,target}`), and
+  those symlinks dangled once the sandbox was torn down at run end. Every subsequent dbt
+  invocation then exited **rc=2 with completely empty stdout AND stderr** — dbt dies before
+  logging is initialised, so there is no error message to read. That silently failed the
+  task's own `dbt parse` gate, and would have failed any later dbt task in the same repo.
+  Fix: `rm -f logs target` in the project dir, then re-run; dbt recreates real directories.
+  Lesson for orchestrators: after any opencode task that touches a dbt/tooling project,
+  check for dangling symlinks before trusting a downstream failure. A silent rc=2 with no
+  output is the signature. Do NOT read this as evidence against GLM 5.2 for code-feature.
