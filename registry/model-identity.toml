@@ -106,6 +106,24 @@ confidence = "verified"     # listed by `cursor-agent models` on this account as
 source = "https://cursor.com/docs/models"
 last_verified = 2026-07-23
 
+[engines.cursor.models."cursor-grok-4.5-medium"]
+# Same trained artifact as cursor-grok-4.5-high (Grok 4.5, xAI) at medium
+# reasoning effort. Registered after a 2026-07-24 probe run logged this slug
+# as unregistered on the scoreboard: `--list-models` offers low/medium/high
+# (each with a -fast variant) and only -high was registered.
+display = "Grok 4.5 Medium"
+lab = "xAI"
+confidence = "verified"     # listed by `cursor-agent --list-models` on this account, 2026-07-24
+source = "https://cursor.com/docs/models"
+last_verified = 2026-07-24
+
+[engines.cursor.models."cursor-grok-4.5-low"]
+display = "Grok 4.5 Low"
+lab = "xAI"
+confidence = "verified"     # listed by `cursor-agent --list-models` on this account, 2026-07-24
+source = "https://cursor.com/docs/models"
+last_verified = 2026-07-24
+
 [engines.opencode]
 harness = "OpenCode"
 access = "OpenRouter API"
@@ -149,8 +167,22 @@ source = "manifest model field; OpenRouter slug nvidia/nemotron-3-super-120b-a12
 last_verified = 2026-07-10
 
 [engines.opencode.models."openrouter/meta-llama/llama-3.3-70b-instruct:free"]
+# Slug DELISTED from the OpenRouter catalog per the 2026-07-23 engine-lane
+# probe (calls return UnknownError). Entry kept so historical rows display;
+# check `./ringer.py catalog` before routing any :free slug.
 display = "Llama 3.3 70B Instruct (free)"
 lab = "Meta"
 confidence = "verified"
 source = "manifest model field; OpenRouter slug meta-llama/llama-3.3-70b-instruct:free"
 last_verified = 2026-07-10
+
+[engines.opencode.models."openrouter/poolside/laguna-s-2.1:free"]
+# Registered 2026-07-27 after the scoreboard flagged the slug as unregistered
+# (2026-07-24 code-review audition, per TAXONOMY identity procedure). Free
+# tier: 262k ctx, $0/$0; paid slug poolside/laguna-s-2.1 is 1M ctx. Poolside's
+# own models page lists Laguna S 2.1 (118B).
+display = "Laguna S 2.1 (free)"
+lab = "Poolside"
+confidence = "verified"     # OpenRouter catalog id poolside/laguna-s-2.1:free + https://poolside.ai/models, 2026-07-27
+source = "https://poolside.ai/models"
+last_verified = 2026-07-27
